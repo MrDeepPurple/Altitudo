@@ -20,11 +20,8 @@ void MainPage::dataUpdate(AltimeterData &data)
     currentPressure = data.pressure;
 }
 
-void MainPage::update()
+void MainPage::compactPageUpdate()
 {
-    //clear column
-    display.clearRect(xcol, 10, 150, 100);
-
     /* display only the variable parts*/
     if (currentAltitude < -999.99 || currentAltitude > 99999.99)
         display.displayText(xcol, 10, "  ----  ");
@@ -49,6 +46,31 @@ void MainPage::update()
         display.displayText(xcol, 40, String(currentPressure * 0.029529983071445, 1) + " inHg");
     else
         display.displayText(xcol, 40, String(currentPressure, 1) + " hPa");
+}
+
+void MainPage::compactPageRedraw()
+{
+    display.displayText(10, 10, altitude_str);
+    display.displayText(10, 20, height_str);
+    display.displayText(10, 30, temperature_str );
+    display.displayText(10, 40, pressure_str);
+}
+
+void MainPage::extendedPageUpdate()
+{}
+
+void MainPage::extendedPageRedraw()
+{}
+
+void MainPage::update()
+{
+    //clear column
+    display.clearRect(xcol, 10, 150, 100);
+
+    if(settings.uiMode == COMPACT)
+        compactPageUpdate();
+    else
+        extendedPageUpdate();
 
     display.update();
 }
@@ -57,10 +79,11 @@ void MainPage::redraw()
 {
     /* display all the page */
     display.clear();
-    display.displayText(10, 10, altitude_str);
-    display.displayText(10, 20, height_str);
-    display.displayText(10, 30, temperature_str );
-    display.displayText(10, 40, pressure_str);
+    
+    if(settings.uiMode == COMPACT)
+        compactPageRedraw();
+    else
+        extendedPageRedraw();
 
     /* draw variable data */
     update();

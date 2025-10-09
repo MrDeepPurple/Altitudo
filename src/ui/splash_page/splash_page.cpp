@@ -2,8 +2,8 @@
 
 /* Splash page 
 * +------------------------------+
-* |       Altimeter              |
-* |       v0.1.0                 |
+* |       Altitudo               |
+* |       v0.5.0                 |
 * |       by Syncthread          |
 * |                              |
 * +------------------------------+
@@ -14,9 +14,9 @@
 void SplashPage::redraw()
 {
     display.clear();
-    display.displayText(10, 20, "Altimeter");
+    display.displayText(10, 20, "Altitudo");
     display.displayText(10, 30, "by Syncthread");
-    display.displayText(10, 40, "v0.1.0");
+    display.displayText(10, 40, "v0.5.0");
     display.update();
 }
 

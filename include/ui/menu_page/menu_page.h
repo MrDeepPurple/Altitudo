@@ -4,39 +4,31 @@
 #include "ui/altimeter_ui.h"
 #include "ui/menu_page/menu_options.h"
 
+#define MENU_OPTIONS 8
+
 class MenuOptionPage: public TablePage
 {
     /* Menu page
     * +---------------------------------------------------+
     * |  | 1. Calibrate QNH                  | QNE/custom |
     * |  | 2. Set QFE to current pressure    |            |
-    * |->| 3. Display Height unit            | m/ft       |
-    * |  | 4. Temperature unit               | C/F        |
-    * |  | 5. Pressure unit                  | hPa/inHg   |
-    * |  | 6. Back to main page              |            |
-    * +---------------------------------------------------+
+    * |->| 3. Display Height unit            |
+    * |  | 4. Temperature unit               |
+    * |  | 5. Reset SPS                      |
+    * |  | 6. Back to main page              |
+    * +--------------------------------------+
     * 
-    * the arrow represent a selection curson. When an option is
-    * selected, the arrow changes to a E (as in Edit) and the
-    * user can changhe the option value.
-    * e.g.: changing display unit from m to ft
-    * +---------------------------------------------------+
-    * |  | 1. Calibrate QNH                  | QNE/custom |
-    * |  | 2. Set QFE to current pressure    |            |
-    * |E | 3. Display Height unit            | ft         |
-    * |  | 4. Temperature unit               | C/F        |
-    * |  | 5. Pressure unit                  | hPa/inHg   |
-    * |  | 6. Back to main page              |            |
-    * +---------------------------------------------------+
     */
     private:
-        const uint8_t numberOfOptions = 6;
-        MenuOption *options[6] = {
+        const uint8_t numberOfOptions = MENU_OPTIONS;
+        MenuOption *options[MENU_OPTIONS] = {
             new setQNHOption(),
             new SetQFEOption(),
             new HeightUnitOption(),
             new TemperatureUnitOption(),
             new PressureUnitOption(),
+            new UIModeOption(),
+            new ResetOption(),
             new BackToMainOption()
         };
         uint8_t selectedOption;

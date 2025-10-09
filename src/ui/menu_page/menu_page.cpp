@@ -39,10 +39,7 @@ void MenuOptionPage::redrawArrow(int oldpos, int newpos)
 {
     //clear column
     display.clearRect(0, 0, 10, 64);
-    if (!editMode)
-        display.displayText(arrowXPos, (newpos * optionLineHeight), "->");
-    else
-        display.displayText(arrowXPos, (newpos * optionLineHeight), "E ");
+    display.displayText(arrowXPos, (newpos * optionLineHeight), "->");
 }
 
 void MenuOptionPage::setEditMode(bool edit)
@@ -78,7 +75,7 @@ void MenuOptionPage::onClick()
     }
     else
     {
-        if(selectedOption == 5) // Back to main page
+        if(selectedOption == numberOfOptions - 1) // Back to main page
         {
             // handled outside
             exitMenu();
@@ -105,7 +102,7 @@ void MenuOptionPage::onScroll(int direction)
             selectedOption = (selectedOption + 1) % numberOfOptions;
         else
             if(selectedOption == 0)
-                selectedOption = 5;
+                selectedOption = (numberOfOptions - 1);
             else
                 selectedOption = (selectedOption - 1) % numberOfOptions;
     }
@@ -134,16 +131,20 @@ void MenuOptionPage::redraw()
     else if(editMode)
     {
         // draw option
-        display.displayText(textxPos, optionLineHeight, options[selectedOption]->getOptionText());
+        display.displayText(textxPos, optionLineHeight, options[selectedOption]->getName());
+        display.displayText(textxPos, 2*optionLineHeight, options[selectedOption]->getOptionText());
     }
     else
     {
         int current_page = selectedOption / optionsPerPage;
         int local_opt_index = selectedOption - current_page * optionsPerPage;
 
-        for (uint8_t i = 0; i < optionsPerPage; i++)
+        int opts_to_print = min(optionsPerPage, uint16_t(numberOfOptions - current_page * optionsPerPage));
+
+        for (uint8_t i = 0; i < opts_to_print; i++)
         {
-            display.displayText(textxPos, (i * optionLineHeight), String(i + 1) + ". " + options[current_page * optionsPerPage + i]->getName());
+            int optionIndex = current_page * optionsPerPage + i;
+            display.displayText(textxPos, (i * optionLineHeight), String(optionIndex + 1) + ". " + options[optionIndex]->getName());
         }
 
         redrawArrow(-1, local_opt_index);

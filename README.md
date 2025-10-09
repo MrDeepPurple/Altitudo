@@ -38,7 +38,7 @@ It is based on the original [Altisense: Compact Altimeter Using ESP‑32](https:
 - (Optional) LiPo battery
 - (Optional) Micro switch
 
-Note: Instead of LiPo battery, the device can be powered through the ESP32 usb port using a powerbank. LiPo 
+Note: Instead of LiPo battery, the device can be powered through the ESP32 usb port using a powerbank 
 
 ### Building
 

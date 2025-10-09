@@ -43,6 +43,10 @@ class MainPage: public TablePage
         float currentHeight;
         float currentTemperature;
         float currentPressure;
+        void compactPageUpdate();
+        void compactPageRedraw();
+        void extendedPageUpdate();
+        void extendedPageRedraw();
 };
 
 #endif

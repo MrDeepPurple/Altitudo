@@ -64,7 +64,7 @@ void HeightUnitOption::scroll_internal(int direction)
 
 const char* HeightUnitOption::getOptionText()
 {
-    return (currentUnit == METERS) ? "m" : "ft";
+    return (currentUnit == METERS) ? "meters" : "feet";
 }
 
 int HeightUnitOption::getOptionValue()
@@ -124,7 +124,36 @@ int PressureUnitOption::getOptionValue()
     return static_cast<int>(currentUnit);
 }
 
-void BackToMainOption::clicked_internal(AltimeterSettings &settings)
+void UIModeOption::clicked_internal(AltimeterSettings &settings)
 {
-    return;
+    // accept edit mode:
+    settings.uiMode = mode; // Update the pressure unit setting
+    settings.save();
+}
+
+void UIModeOption::scroll_internal(int direction)
+{
+    // Toggle between HPA and INHG
+    if (direction != 0) 
+    {
+        mode = (mode == COMPACT) ? STANDARD : COMPACT;
+    }
+}
+
+const char* UIModeOption::getOptionText()
+{
+    return (mode == COMPACT) ? "Compact" : "Standard";
+}
+
+int UIModeOption::getOptionValue()
+{
+    return static_cast<int>(mode);
+}
+
+void ResetOption::clicked_internal(AltimeterSettings &settings)
+{
+    // accept edit mode:
+    settings.QNH = 1013.25; // Reset QNH to standard value
+    settings.QFE = 1013.25; // Reset QFE to standard value
+    settings.save();
 }

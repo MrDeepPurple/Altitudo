@@ -53,7 +53,7 @@ class SetQFEOption : public MenuOption
         bool isEditable() override { return false; }
         void dataUpdate(AltimeterData &data) override;
     private:
-        float qfeValue = 1013.25; // Default QFE value in hPa
+        float qfeValue = SEA_LEVEL_PRESSURE_HPA; // Default QFE value in hPa
         // No additional members needed
     protected:
         void clicked_internal(AltimeterSettings &settings) override;
@@ -69,7 +69,7 @@ class setQNHOption : public MenuOption
         int getOptionValue() override;
         void dataUpdate(AltimeterData &data) override {}
     private:
-        float qnhValue = 1013.25; // Default QNH value in hPa
+        float qnhValue = SEA_LEVEL_PRESSURE_HPA; // Default QNH value in hPa
         // No additional members needed
         void clicked_internal(AltimeterSettings &settings) override;
         void scroll_internal(int steps) override;
@@ -117,6 +117,32 @@ class PressureUnitOption : public MenuOption
         void scroll_internal(int direction) override;
 };
 
+class UIModeOption : public MenuOption
+{
+    public:
+        UIModeOption() : MenuOption("UI Mode") {}
+        bool isEditable() override { return true; }
+        const char* getOptionText() override;
+        int getOptionValue() override;
+        void dataUpdate(AltimeterData &data) override {};
+    private:
+        UIMode mode = COMPACT;
+        void clicked_internal(AltimeterSettings &settings) override;
+        void scroll_internal(int direction) override;
+};
+
+class ResetOption : public MenuOption
+{
+    public:
+        ResetOption() : MenuOption("Reset SPS") {}
+        bool isEditable() override { return false; }
+        void dataUpdate(AltimeterData &data) override {};
+    private:
+        // No additional members needed
+        void clicked_internal(AltimeterSettings &settings) override;
+        void scroll_internal(int direction) override {}
+};
+
 class BackToMainOption : public MenuOption
 {
     public:
@@ -125,7 +151,7 @@ class BackToMainOption : public MenuOption
         void dataUpdate(AltimeterData &data) override {};
     private:
         // No additional members needed
-        void clicked_internal(AltimeterSettings &settings) override;
+        void clicked_internal(AltimeterSettings &settings) override {};
         void scroll_internal(int direction) override {}
 };
 

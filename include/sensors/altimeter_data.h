@@ -7,9 +7,12 @@
 
 #define MAVG_SIZE 10 // 100ms avg
 
+#define SEA_LEVEL_PRESSURE_HPA 1013.25
+
 enum HeightUnit { METERS, FEET };
 enum TemperatureUnit { CELSIUS, FAHRENHEIT };
 enum PressureUnit { HPA, INHG };
+enum UIMode { STANDARD, COMPACT };
 
 /* settings related to altimeter display and calibration */
 class AltimeterSettings
@@ -22,20 +25,23 @@ class AltimeterSettings
         const char* storage_hu = "heightUnit";
         const char* storage_tu = "tempUnit";
         const char* storage_pu = "pressUnit";
+        const char* storage_ui = "uiMode";
     public:
-        double QFE = 1013.25; // QFE in hPa
-        double QNH = 1013.25; // QNH in hPa
+        double QFE = SEA_LEVEL_PRESSURE_HPA; // QFE in hPa
+        double QNH = SEA_LEVEL_PRESSURE_HPA; // QNH in hPa
         HeightUnit heightUnit = METERS;
         TemperatureUnit temperatureUnit = CELSIUS;
         PressureUnit pressureUnit = HPA;
+        UIMode uiMode = STANDARD;
         void load()
         {
             storage.begin(storage_name, true);
-            QFE = storage.getDouble(storage_qfe, 1013.25);
-            QNH = storage.getDouble(storage_qnh, 1013.25);
+            QFE = storage.getDouble(storage_qfe, SEA_LEVEL_PRESSURE_HPA);
+            QNH = storage.getDouble(storage_qnh, SEA_LEVEL_PRESSURE_HPA);
             heightUnit = static_cast<HeightUnit>(storage.getUChar(storage_hu, static_cast<uint8_t>(METERS)));
             temperatureUnit = static_cast<TemperatureUnit>(storage.getUChar(storage_tu, static_cast<uint8_t>(CELSIUS)));
             pressureUnit = static_cast<PressureUnit>(storage.getUChar(storage_pu, static_cast<uint8_t>(FAHRENHEIT)));
+            uiMode = static_cast<UIMode>(storage.getUChar(storage_ui, static_cast<uint8_t>(COMPACT)));
             storage.end();
         }
         void save()
@@ -46,6 +52,7 @@ class AltimeterSettings
             storage.putUChar(storage_hu, static_cast<uint8_t>(heightUnit));
             storage.putUChar(storage_tu, static_cast<uint8_t>(temperatureUnit));
             storage.putUChar(storage_pu, static_cast<uint8_t>(pressureUnit));
+            storage.putUChar(storage_ui, static_cast<uint8_t>(uiMode));
             storage.end();
         }
 };
