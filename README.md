@@ -56,13 +56,21 @@ When powered on, Altitudo displays a 3-second splash screen:
 
 ![Altitudo Splash](docs/splash_page.png)
 
-After the splash, the main page appears:
+After the splash, the main page appears. Depending on the selected options, compact or extended version of the page is shown.
+In extended version, scroll through the pages using the encoder wheel.
 
-![Altitudo Main](docs/main_page.png)
+<p float="left">
+  <img src="docs/main_page_compact.png" alt="Compact" width="200"/>
+  <img src="docs/main_page_extended.png" alt="Extended" width="200"/>
+</p>
 
 To access the menu, press the encoder button. The menu page will be displayed:
 
-![Altitudo Menu](docs/settings_page.png)
+<p float="left">
+  <img src="docs/setting_page_1.png" alt="Page 1" width="200"/>
+  <img src="docs/setting_page_2.png" alt="Page 2" width="200"/>
+</p>
+
 
 Navigate through menu options by rotating the encoder. Press the encoder button to select an option and enter its configuration mode.
 
@@ -72,6 +80,8 @@ Navigate through menu options by rotating the encoder. Press the encoder button 
 - **Altimeter unit:** Choose between meters and feet.
 - **Temperature unit:** Choose between Celsius and Fahrenheit.
 - **Pressure unit:** Choose between hPa and inHg.
+- **UI mode:** Choose between compact and standard.
+- **Reset SPS:** restore standard pressure for both QNH and QFE
 
 While in configuration mode, use the encoder wheel to adjust the setting. Press the encoder button again to confirm your selection and return to the menu page.
 
