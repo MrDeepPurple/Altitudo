@@ -54,21 +54,21 @@ Note: Instead of LiPo battery, the device can be powered through the ESP32 usb p
 
 When powered on, Altitudo displays a 3-second splash screen:
 
-![Altitudo Splash](docs/splash_page.png)
+<img src="docs/splash_page.png" alt="Compact" width="250"/>
 
 After the splash, the main page appears. Depending on the selected options, compact or extended version of the page is shown.
 In extended version, scroll through the pages using the encoder wheel.
 
 <p float="left">
-  <img src="docs/main_page_compact.png" alt="Compact" width="200"/>
-  <img src="docs/main_page_extended.png" alt="Extended" width="200"/>
+  <img src="docs/main_page_compact.png" alt="Compact" width="250"/>
+  <img src="docs/main_page_extended.png" alt="Extended" width="250"/>
 </p>
 
 To access the menu, press the encoder button. The menu page will be displayed:
 
 <p float="left">
-  <img src="docs/setting_page_1.png" alt="Page 1" width="200"/>
-  <img src="docs/setting_page_2.png" alt="Page 2" width="200"/>
+  <img src="docs/settings_page_1.png" alt="Page 1" width="250"/>
+  <img src="docs/settings_page_2.png" alt="Page 2" width="250"/>
 </p>
 
 
