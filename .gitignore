@@ -39,3 +39,10 @@
 
 # debug information files
 *.dwo
+
+# custom and temporary ignore
+CAD/
+lib/
+test/
+.vscode/
+.pio/
