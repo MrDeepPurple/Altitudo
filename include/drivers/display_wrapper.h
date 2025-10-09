@@ -6,7 +6,6 @@
 #if DISPLAY_TYPE == DT_GxEPD2
 #include <GxEPD2_BW.h>  // https://github.com/ZinggJM/GxEPD2
 #include <GxEPD2_3C.h>
-#include <U8g2_for_Adafruit_GFX.h>
 #elif DISPLAY_TYPE == DT_SH1106
 #include <SH1106.h>
 #elif DISPLAY_TYPE == DT_SSD1306

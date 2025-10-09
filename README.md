@@ -9,7 +9,7 @@ It is based on the original [Altisense: Compact Altimeter Using ESP‑32](https:
 
 - **ESP32-S3 Supermini** support
 - Modular driver architecture for multiple display types:
-  - GxEPD2 (e-paper)
+  - GxEPD2 (e-paper) (Note: some ESP32-C3 boards do not have enough harware pins for e-paper displays or SPI displays in general)
   - SH1106 (OLED)
   - SSD1306 (OLED)
 - Simple UI
@@ -33,6 +33,12 @@ It is based on the original [Altisense: Compact Altimeter Using ESP‑32](https:
 - A supported barometer
   - MS5611
   - (Coming soon) BMP585
+- 2 10Kohm resistors
+- wires
+- (Optional) LiPo battery
+- (Optional) Micro switch
+
+Note: Instead of LiPo battery, the device can be powered through the ESP32 usb port using a powerbank. LiPo 
 
 ### Building
 
@@ -41,6 +47,35 @@ It is based on the original [Altisense: Compact Altimeter Using ESP‑32](https:
 3. Open the project in your preferred IDE.
 4. Download required libraries
 5. Build and upload to your ESP32 board.
+
+### Usage
+
+> **Note:** The UI is currently under development and may change in future releases.
+
+When powered on, Altitudo displays a 3-second splash screen:
+
+![Altitudo Splash](docs/splash_page.png)
+
+After the splash, the main page appears:
+
+![Altitudo Main](docs/main_page.png)
+
+To access the menu, press the encoder button. The menu page will be displayed:
+
+![Altitudo Menu](docs/menu_page.png)
+
+Navigate through menu options by rotating the encoder. Press the encoder button to select an option and enter its configuration mode.
+
+**Available menu options:**
+- **Calibrate QNH:** Enter the sea level pressure for your current location.
+- **Calibrate QFE:** Automatically set the current pressure as the baseline for height calculation.
+- **Altimeter unit:** Choose between meters and feet.
+- **Temperature unit:** Choose between Celsius and Fahrenheit.
+- **Pressure unit:** Choose between hPa and inHg.
+
+While in configuration mode, use the encoder wheel to adjust the setting. Press the encoder button again to confirm your selection and return to the menu page.
+
+To return to the main page, select the "Back" option in the menu.
 
 ---
 
@@ -53,7 +88,7 @@ It is based on the original [Altisense: Compact Altimeter Using ESP‑32](https:
 
 ## License
 
-This project is open source and available under the MIT License.  
+This project is open source and available under the GPL 3.0 License.  
 See [LICENSE](../LICENSE) for details.
 
 ---
