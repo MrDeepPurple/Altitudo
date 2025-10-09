@@ -62,7 +62,7 @@ After the splash, the main page appears:
 
 To access the menu, press the encoder button. The menu page will be displayed:
 
-![Altitudo Menu](docs/menu_page.png)
+![Altitudo Menu](docs/settings_page.png)
 
 Navigate through menu options by rotating the encoder. Press the encoder button to select an option and enter its configuration mode.
 
