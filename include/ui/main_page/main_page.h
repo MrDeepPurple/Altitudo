@@ -22,7 +22,8 @@ class MainPage: public TablePage
     * +------------------------------+
     */
     public:
-        MainPage(DisplayWrapper &disp, AltimeterSettings &sett) : TablePage(disp, sett), xcol(disp.getWidth()/2 - 10)
+        MainPage(DisplayWrapper &disp, AltimeterSettings &sett) : 
+            TablePage(disp, sett), xcol(disp.getWidth()/2 - 10), std_unit_x(disp.getWidth() - 30), std_unit_y(disp.getHeight() - 10)
         {
             currentAltitude = 0.0;
             currentTemperature = 0.0;
@@ -35,6 +36,10 @@ class MainPage: public TablePage
         void onScroll(int direction) override;
     private:
         const int xcol;
+        const int textsize_large = 3;
+        const int textsize_small = 1;
+        const int std_unit_x;
+        const int std_unit_y;
         String altitude_str = "Alt: ";
         String height_str = "Height: ";
         String temperature_str = "Temp: ";
@@ -43,10 +48,14 @@ class MainPage: public TablePage
         float currentHeight;
         float currentTemperature;
         float currentPressure;
+        uint16_t currentItem = 0; // 0=altitude, 1=height, 2=temperature, 3=pressure
         void compactPageUpdate();
         void compactPageRedraw();
         void extendedPageUpdate();
         void extendedPageRedraw();
+        String get_current_measure_name();
+        String get_current_measure_value();
+        String get_current_measure_unit();
 };
 
 #endif
