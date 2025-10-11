@@ -4,27 +4,30 @@
 PageController::PageController(DisplayWrapper &disp, AltimeterSettings &sett) : display(disp), settings(sett)
 {
     buttonActionExecuted = false;
+
+    pages = {
+        {PageType::PAGE_MAIN, new MainPage(display, settings)},
+        {PageType::PAGE_MENU, new MenuOptionPage(display, settings)},
+        {PageType::PAGE_SPLASH, new SplashPage(display, settings)}
+    };
 }
 
 void PageController::init()
 {
-    splashPage = new SplashPage(display, settings);
-    mainPage = new MainPage(display, settings);
-    mainPage->registerChangePageCallback([this]() {this->switchToMenuPage();});
-    menuOptionPage = new MenuOptionPage(display, settings);
-    menuOptionPage->registerChangePageCallback([this]() {this->switchToMainPage();});
+    for (auto& pair : pages) {
+        pair.second->registerChangePageCallback([this](PageType to) {this->changePage(to);});
+    }
 }
 
 void PageController::ShowSplash()
 {
-    display.clear();
-    currentPage = splashPage;
-    currentPage->redraw();
+    changePage(PageType::PAGE_SPLASH);
 }
 
-void PageController::HideSplash()
+void PageController::changePage(PageType to)
 {
-    switchToMainPage();
+    currentPage = pages[to];
+    currentPage->redraw();
 }
 
 void PageController::eventHandler(int encoderSteps, bool buttonPressed)
@@ -52,18 +55,4 @@ void PageController::dataUpdate(AltimeterData &data)
         currentPage->dataUpdate(data);
         currentPage->update();
     }
-}
-
-void PageController::switchToMainPage()
-{
-    display.clear();
-    currentPage = mainPage;
-    currentPage->redraw();
-}
-
-void PageController::switchToMenuPage()
-{
-    display.clear();
-    currentPage = menuOptionPage;
-    currentPage->redraw();
 }

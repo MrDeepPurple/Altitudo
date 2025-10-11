@@ -7,22 +7,28 @@
 #include "sensors/altimeter_data.h"
 #include "drivers/display_wrapper.h"
 
-class TablePage
+enum class PageType {
+    PAGE_MAIN,
+    PAGE_MENU,
+    PAGE_SPLASH
+};
+
+class PageCanvas
 {
     public:
-        TablePage(DisplayWrapper &disp, AltimeterSettings &sett) : display(disp), settings(sett) {};
+        PageCanvas(DisplayWrapper &disp, AltimeterSettings &sett) : display(disp), settings(sett) {};
         virtual void redraw() {}
         virtual void update() {}
         virtual void onClick() {}
         virtual void onScroll(int direction) {}
         virtual void dataUpdate(AltimeterData &data) {}
-        void registerChangePageCallback(std::function<void()> cb) {
+        void registerChangePageCallback(std::function<void(PageType)> cb) {
             changePageCallback = cb;
         }
     protected:
         DisplayWrapper &display;
         AltimeterSettings &settings;
-        std::function<void()> changePageCallback;
+        std::function<void(PageType)> changePageCallback;
 };
 
 #endif // ALTIMETER_UI_H

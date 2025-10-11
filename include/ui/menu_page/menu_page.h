@@ -6,7 +6,7 @@
 
 #define MENU_OPTIONS 8
 
-class MenuOptionPage: public TablePage
+class MenuOptionPage: public PageCanvas
 {
     /* Menu page
     * +---------------------------------------------------+

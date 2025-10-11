@@ -3,7 +3,7 @@
 
 #include "ui/altimeter_ui.h"
 
-class SplashPage: public TablePage
+class SplashPage: public PageCanvas
 {
     /* Splash page 
     * +------------------------------+
@@ -14,7 +14,7 @@ class SplashPage: public TablePage
     * +------------------------------+
     */
     public:
-        SplashPage(DisplayWrapper &disp, AltimeterSettings &sett) : TablePage(disp, sett) {};
+        SplashPage(DisplayWrapper &disp, AltimeterSettings &sett) : PageCanvas(disp, sett) {};
         void redraw() override;
         void update() override;
         void onClick() override;

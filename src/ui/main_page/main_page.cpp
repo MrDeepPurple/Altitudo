@@ -48,7 +48,7 @@ void MainPage::extendedPageUpdate()
     display.setTextSize(textsize_large);
     display.displayText(x_padding, y_padding + 20, measures[currentItem]->getValue());
     display.setTextSize(1);
-    display.displayText(display.getHeight() - (x_padding + row_height), display.getWidth() - (y_padding + 10), measures[currentItem]->getUnit());
+    display.displayText(display.getWidth() - (x_padding + row_height), display.getHeight() - y_padding, measures[currentItem]->getUnit());
 }
 
 void MainPage::extendedPageRedraw()
@@ -83,7 +83,7 @@ void MainPage::redraw()
 
 void MainPage::onClick()
 {
-    if (changePageCallback) changePageCallback();
+    if (changePageCallback) changePageCallback(PageType::PAGE_MENU);
 }
 
 void MainPage::onScroll(int direction)

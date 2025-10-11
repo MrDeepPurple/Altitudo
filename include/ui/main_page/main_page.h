@@ -6,7 +6,7 @@
 
 #define NUM_MEASURES 4
 
-class MainPage: public TablePage
+class MainPage: public PageCanvas
 {
     /*NOTES:
      * QNH = Sea level pressure
@@ -26,7 +26,7 @@ class MainPage: public TablePage
     */
     public:
         MainPage(DisplayWrapper &disp, AltimeterSettings &sett) : 
-            TablePage(disp, sett), data_column_x(disp.getWidth()/2 - 10)
+            PageCanvas(disp, sett), data_column_x(disp.getWidth()/2 - 10)
         {};
         void dataUpdate(AltimeterData &d);
         void redraw();

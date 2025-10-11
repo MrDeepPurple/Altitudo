@@ -16,7 +16,7 @@
 */
 
 MenuOptionPage::MenuOptionPage(DisplayWrapper &disp, AltimeterSettings &sett)
-        : TablePage(disp, sett), optionsPerPage((disp.getHeight() / optionLineHeight))
+        : PageCanvas(disp, sett), optionsPerPage((disp.getHeight() / optionLineHeight))
 {
     selectedOption = 0;
     editMode = false;
@@ -160,5 +160,5 @@ void MenuOptionPage::update()
 
 void MenuOptionPage::exitMenu()
 {
-    if (changePageCallback) changePageCallback();
+    if (changePageCallback) changePageCallback(PageType::PAGE_MAIN);
 }

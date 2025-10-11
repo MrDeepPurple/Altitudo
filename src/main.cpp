@@ -26,8 +26,7 @@ void setup() {
   debug_println("Setup complete");
 
   /* hide splash page */
-  pageController->HideSplash();
-
+  pageController->changePage(PageType::PAGE_MAIN);
 }
 
 void loop() {
