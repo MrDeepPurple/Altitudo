@@ -2,13 +2,13 @@
 
 
 /* Menu page
-* +---------------------------------------------------+
-* |  | 1. Calibrate QNH                  | QNE/custom |
-* |  | 2. Set QFE to current pressure    |            |
-* |->| 3. Display Height unit            | m/ft       |
-* |  | 4. Temperature unit               | C/F        |
-* |  | 5. Pressure unit                  | hPa/inHg   |
-* |  | 6. Back to main page              |            |
+* +--------------------------------------+
+* |  | 1. Calibrate QNH                  |
+* |  | 2. Set QFE to current pressure    |
+* |->| 3. Display Height unit            |
+* |  | 4. Temperature unit               |
+* |  | 5. Pressure unit                  |
+* |  | 6. Back to main page              |
 * +---------------------------------------------------+
 * Interactions:
 *  click: enter/exit edit mode or execute action

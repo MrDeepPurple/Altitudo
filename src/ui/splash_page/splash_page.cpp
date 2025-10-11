@@ -43,5 +43,3 @@ void SplashPage::dataUpdate(AltimeterData &data)
     // no data to update
     return;
 }
-
-

@@ -10,13 +10,9 @@
 #include <SH1106.h>
 #elif DISPLAY_TYPE == DT_SSD1306
 #include <Adafruit_SSD1306.h>
+#else
+#error "No valid display type selected"
 #endif
-
-/* NOTE:
-Pins to avoid on an ESP32-S3 Supermini board:
-GPIO  0 : Boot button
-GPIO 48 : Onboard LED + RGB LED (pin sharing)
-*/
 
 class DisplayWrapper
 {

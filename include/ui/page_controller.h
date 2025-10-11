@@ -3,7 +3,7 @@
 
 #include <map>
 
-#include "altimeter_ui.h"
+#include "ui/altimeter_ui.h"
 #include "ui/main_page/main_page.h"
 #include "ui/menu_page/menu_page.h"
 #include "ui/splash_page/splash_page.h"

@@ -1,6 +1,6 @@
 #include "ui/main_page/main_page.h"
 
-/* Main page 
+/* Main page - Compact view
 * +------------------------------+
 * | Altitude:       |1234.5 m    |
 * | Height:         |405.2  m    |
@@ -8,9 +8,18 @@
 * | Pressure:       |1013.25 hPa |
 * +------------------------------+
 *
+* Main page - Standard view
+* +------------------------------+
+* | Altitude:                    |
+* |          1234.56             |
+* |                   m          |
+* +------------------------------+
+*
 * Interactions:
 *  click: go to menu page
-*  scroll: no action
+*  scroll:
+*  - in compact mode: no action
+*  - in standard mode: navigate between measures
 */
 
 void MainPage::dataUpdate(AltimeterData &d)
@@ -98,5 +107,4 @@ void MainPage::onScroll(int direction)
             else
                 currentItem = (currentItem - 1) % 4;
     }
-
 }

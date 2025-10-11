@@ -3,10 +3,18 @@
 
 #include <Preferences.h>
 #include <math.h>
+#if BAROMETER_TYPE == BT_BMP585
+#include <Adafruit_Sensor.h>
+#include "Adafruit_BMP5xx.h"
+#elif BAROMETER_TYPE == BT_MS5611
 #include <MS5611.h>
+#else
+#error "No valid barometer type selected"
+#endif
 
 #define MAVG_SIZE 10 // 100ms avg
 
+#define DEFAULT_TEMPERATURE_K 288.15
 #define SEA_LEVEL_PRESSURE_HPA 1013.25
 
 enum HeightUnit { METERS, FEET };
@@ -63,8 +71,8 @@ class AltimeterData
     public:
         float altitude = 0.0;     // Altitude above sea level
         float height = 0.0;       // Height above ground level
-        float temperature = 288.15;  // Temperature in Kelvin
-        float pressure = 1013.25; // Pressure in hPa
+        float temperature = DEFAULT_TEMPERATURE_K;  // Temperature in Kelvin
+        float pressure = SEA_LEVEL_PRESSURE_HPA; // Pressure in hPa
 };
 
 /* altimeter sensor wrapper */
@@ -82,14 +90,23 @@ class Altimeter
                 mavg_buff_temp[mavg_idx] = data.temperature;
                 mavg_buff_pres[mavg_idx] = data.pressure;
             }
-            
-            /* initialize I2C connection to ms5611 baro */
-            while(!ms5611.begin())
+            /* initialize I2C connection to BAROMETER */
+            while(!baro.begin())
             {
                 delay(500);
             }
-            ms5611.reset(1); //<-- set math mode
-            ms5611.setOversampling(OSR_HIGH);
+            #if BAROMETER_TYPE == BT_MS5611
+                baro.reset(MATH_MODE); //<-- set math mode to 1, otherwise temperature calculation is off by factor 2
+                baro.setOversampling(OSR_HIGH);
+            #elif BAROMETER_TYPE == BT_MS5611
+                baro.setTemperatureOversampling(BMP5XX_OVERSAMPLING_2X);
+                baro.setPressureOversampling(BMP5XX_OVERSAMPLING_16X);
+                baro.setIIRFilterCoeff(BMP5XX_IIR_FILTER_COEFF_3);
+                baro.setOutputDataRate(BMP5XX_ODR_100_2_HZ);
+                baro.setPowerMode(BMP5XX_POWERMODE_NORMAL);
+                baro.enablePressure(true);
+                baro.configureInterrupt(BMP5XX_INTERRUPT_LATCHED, BMP5XX_INTERRUPT_ACTIVE_HIGH, BMP5XX_INTERRUPT_PUSH_PULL, BMP5XX_INTERRUPT_DATA_READY, true);
+            #endif
         }
 
         AltimeterSettings &getSettings() {
@@ -101,38 +118,54 @@ class Altimeter
         }
 
         void read() {
-            ms5611.read();
+            #if BAROMETER_TYPE == BT_BMP585
+            if(baro.dataReady()) {
+                baro.perofmReading();
+                float temperature = baro.temperature + 273.15; // Convert to Kelvin
+                float pressure = baro.pressure; // in hPa
+                update(temperature, pressure);
+            }
+            #elif BAROMETER_TYPE == BT_MS5611
+            baro.read();
            // Read temperature and pressure from the sensor
-            double temperature = ms5611.getTemperature() + 273.15; // Convert to Kelvin
-            double pressure = ms5611.getPressure();
+            double temperature = baro.getTemperature() + 273.15; // Convert to Kelvin
+            double pressure = baro.getPressure();
             update(temperature, pressure);
+            #endif
 
         }
     private:
-        MS5611 ms5611;
+        #if BAROMETER_TYPE == BT_MS5611
+        MS5611 baro;
+        #elif BAROMETER_TYPE == BT_BMP585
+        Adafruit_BMP585 baro;
+        #endif
         AltimeterData data;
         AltimeterSettings settings;
         const double P_filter = 0.1;
         const double T_filter = 0.3;
+        #ifdef USE_PRECISE_FORMULA
         const double R = 8.31432;    // Universal gas constant in N·m/(mol·K)
         const double g = 9.80665;    // Acceleration due to gravity in m/s²
         const double M = 0.0289644;  // Molar mass of Earth's air in kg/mol
         const double L = 0.0065;     // Temperature lapse rate in K/m
         const double T0 = 288.15;    // Standard temperature at sea level in K
-        double precise_altitude_formula(double pressure, double p0, double T) {
+        double altitude_formula(double pressure, double p0, double T) {
             return (T0 / L) * (1 - pow(pressure / p0, (R * L) / (g * M)));
         }
+        #else
         const double C0 = 44330.0; // Constant for altitude calculation in meters
         const double C1 = 0.1903; // Exponent for altitude calculation
-        double simple_altitude_formula(double pressure, double p0) {
+        double altitude_formula(double pressure, double p0) {
             return C0 * (1.0 - pow(pressure / p0, C1));
         }
+        #endif
         double mavg_buff_temp[MAVG_SIZE];
         double mavg_buff_pres[MAVG_SIZE];
         uint8_t mavg_idx = 0;
 
         void update(float temp, float pres) {
-            
+            #ifdef USE_ROLLING_AVG
             mavg_buff_temp[mavg_idx] = temp;
             mavg_buff_pres[mavg_idx] = pres;
             mavg_idx = (mavg_idx + 1) % MAVG_SIZE;
@@ -146,16 +179,20 @@ class Altimeter
             }
             avg_tmp /= MAVG_SIZE;
             avg_prs /= MAVG_SIZE;
+            #else
+            double avg_tmp = T_filter * temp + (1 - T_filter) * data.temperature;
+            double avg_prs = P_filter * pres + (1 - P_filter) * data.pressure;
+            #endif
 
             data.temperature = avg_tmp;
             data.pressure = avg_prs;
             // Calculate altitude using the barometric formula
             #ifdef USE_PRECISE_FORMULA
-            data.altitude = precise_altitude_formula(pres, settings.QNH, temp);
-            double ground_altitude = precise_altitude_formula(settings.QFE, settings.QNH, temp);
+            data.altitude = altitude_formula(pres, settings.QNH, temp);
+            double ground_altitude = altitude_formula(settings.QFE, settings.QNH, temp);
             #else
-            data.altitude = P_filter * simple_altitude_formula(pres, settings.QNH) + (1 - P_filter) * data.altitude;
-            double ground_altitude = simple_altitude_formula(settings.QFE, settings.QNH);
+            data.altitude = P_filter * altitude_formula(pres, settings.QNH) + (1 - P_filter) * data.altitude;
+            double ground_altitude = altitude_formula(settings.QFE, settings.QNH);
             #endif
             // Height calculation can be added if ground level pressure is known
             data.height = data.altitude - ground_altitude;

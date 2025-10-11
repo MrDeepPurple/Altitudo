@@ -20,6 +20,7 @@ class Encoder
         Encoder() : Encoder(ENCODER_PIN_A, ENCODER_PIN_B, ENCODER_BUTTON_PIN) {};
         int getSteps();
         bool isButtonPressed();
+    protected:
         static Encoder* instance;
         static void encoderIntr();
         static void btnIntr();
