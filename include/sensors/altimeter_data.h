@@ -63,7 +63,7 @@ class AltimeterData
     public:
         float altitude = 0.0;     // Altitude above sea level
         float height = 0.0;       // Height above ground level
-        float temperature = 23.5;  // Temperature in Kelvin
+        float temperature = 288.15;  // Temperature in Kelvin
         float pressure = 1013.25; // Pressure in hPa
 };
 

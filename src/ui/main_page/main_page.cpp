@@ -12,144 +12,43 @@
 *  click: go to menu page
 *  scroll: no action
 */
-void MainPage::dataUpdate(AltimeterData &data)
+
+void MainPage::dataUpdate(AltimeterData &d)
 {
-    currentAltitude = data.altitude;
-    currentHeight = data.height;
-    currentTemperature = data.temperature;
-    currentPressure = data.pressure;
+    for (int i = 0; i < numMeasures; i++)
+    {
+        measures[i]->update(d, settings);
+    }
 }
 
 void MainPage::compactPageUpdate()
 {
     //clear column
-    display.clearRect(xcol, 10, 150, 100);
-    /* display only the variable parts*/
-    if (currentAltitude < -999.99 || currentAltitude > 99999.99)
-        display.displayText(xcol, 10, "  ----  ");
-    else if (settings.heightUnit == FEET)
-        display.displayText(xcol, 10, String(currentAltitude * 3.28084, 1) + " ft");
-    else
-        display.displayText(xcol, 10, String(currentAltitude, 1) + " m");
+    display.clearRect(data_column_x, 0, display.getWidth() - data_column_x, display.getHeight());
 
-    if (currentHeight < -999.99 || currentHeight > 99999.99)
-        display.displayText(xcol, 20, "  ----  ");
-    else if (settings.heightUnit == FEET)
-        display.displayText(xcol, 20, String(currentHeight * 3.28084, 1) + " ft");
-    else
-        display.displayText(xcol, 20, String(currentHeight, 1) + " m");
-    
-    if (settings.temperatureUnit == FAHRENHEIT)
-        display.displayText(xcol, 30, String((currentTemperature - 273.15) * 9.0 / 5.0 + 32.0, 1) + " F");
-    else    
-        display.displayText(xcol, 30, String(currentTemperature - 273.15, 1) + " C");
-    
-    if (settings.pressureUnit == INHG)
-        display.displayText(xcol, 40, String(currentPressure * 0.029529983071445, 1) + " inHg");
-    else
-        display.displayText(xcol, 40, String(currentPressure, 1) + " hPa");
+    for (int i = 0; i < numMeasures; i++)
+    {
+        display.displayText(data_column_x, y_padding + i * row_height, measures[i]->getValue() + " " + measures[i]->getUnit());
+    }
 }
 
 void MainPage::compactPageRedraw()
 {
-    display.displayText(10, 10, altitude_str);
-    display.displayText(10, 20, height_str);
-    display.displayText(10, 30, temperature_str );
-    display.displayText(10, 40, pressure_str);
+    for (int i = 0; i < numMeasures; i++)
+    {
+        display.displayText(x_padding, y_padding + i * row_height, measures[i]->name);
+    }
 }
 
 void MainPage::extendedPageUpdate()
 {
     display.clear();
     display.setTextSize(1);
-    display.displayText(10, 10, get_current_measure_name());
+    display.displayText(x_padding, y_padding, measures[currentItem]->name);
     display.setTextSize(textsize_large);
-    display.displayText(10, 30, get_current_measure_value());
+    display.displayText(x_padding, y_padding + 20, measures[currentItem]->getValue());
     display.setTextSize(1);
-    display.displayText(std_unit_x, std_unit_y, get_current_measure_unit());
-
-}
-
-String MainPage::get_current_measure_name()
-{
-    switch (currentItem)
-    {
-        case 0:
-            return altitude_str.c_str();
-        case 1:
-            return height_str.c_str();
-        case 2:
-            return temperature_str.c_str();
-        case 3:
-            return pressure_str.c_str();
-        default:
-            return "";
-    }
-}
-
-String MainPage::get_current_measure_value()
-{
-    switch (currentItem) // altitude
-    {
-        case 0:
-            if (currentAltitude < -999.99 || currentAltitude > 99999.99)
-                return String("----");
-            else if (settings.heightUnit == FEET)
-                return String(currentAltitude * 3.28084, 1);
-            else
-                return String(currentAltitude, 1);
-        case 1: // height
-            if (currentHeight < -999.99 || currentHeight > 99999.99)
-                return "----";
-            else if (settings.heightUnit == FEET)
-                return String(currentHeight * 3.28084, 1);
-            else
-                return String(currentHeight, 1);
-        case 2: // temperature
-            if (settings.temperatureUnit == FAHRENHEIT)
-                return String((currentTemperature - 273.15) * 9.0 / 5.0 + 32.0, 1);
-            else
-                return String(currentTemperature - 273.15, 1);
-            break;
-        case 3: // pressure
-            if (settings.pressureUnit == INHG)
-                return String(currentPressure * 0.029529983071445, 1);
-            else
-                return String(currentPressure, 1);
-            break;
-        default:
-            return "";
-    }
-}
-
-
-String MainPage::get_current_measure_unit()
-{
-    switch (currentItem) // altitude
-    {
-        case 0:
-        case 1:
-            if (settings.heightUnit == FEET)
-                return "ft";
-            else
-                return "m";
-            
-            break;
-        case 2: // temperature
-            if (settings.temperatureUnit == FAHRENHEIT)
-                return "F";
-            else    
-                return "C";
-            break;
-        case 3: // pressure
-            if (settings.pressureUnit == INHG)
-                return "inHg";
-            else
-                return "hPa";
-            break;
-        default:
-            return "";
-    }    
+    display.displayText(display.getHeight() - (x_padding + row_height), display.getWidth() - (y_padding + 10), measures[currentItem]->getUnit());
 }
 
 void MainPage::extendedPageRedraw()
