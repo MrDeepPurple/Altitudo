@@ -3,6 +3,7 @@
 
 #include <Preferences.h>
 #include <math.h>
+#include "utils/hwconfig.h"
 #if BAROMETER_TYPE == BT_BMP585
 #include <Adafruit_Sensor.h>
 #include "Adafruit_BMP5xx.h"

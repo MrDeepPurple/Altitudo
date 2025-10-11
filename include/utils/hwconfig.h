@@ -51,7 +51,7 @@
     #define MATH_MODE 1 
 #endif
 /* Uncomment to use the more precise barometric formula for altitude calculation */
-//#define USE_PRECISE_FORMULA
+#define USE_PRECISE_FORMULA
 /* Enable or disable rolling average filtering. Note: Rolling average might not be needed
  * for BMP585, as it has built-in filtering enabled by default. 
  */
