@@ -17,7 +17,7 @@ void SplashPage::redraw()
     display.displayText(10, 20, "Altitudo");
     display.displayText(10, 30, "by Syncthread");
     display.displayText(10, 40, "v0.5.0");
-    display.update();
+    display.update(); 
 }
 
 void SplashPage::update()

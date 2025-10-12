@@ -22,13 +22,15 @@ class PageCanvas
         virtual void onClick() {}
         virtual void onScroll(int direction) {}
         virtual void dataUpdate(AltimeterData &data) {}
-        void registerChangePageCallback(std::function<void(PageType)> cb) {
-            changePageCallback = cb;
+        void registerCallbacks(std::function<void(PageType)> cpcb, std::function<void(String)> pcb) {
+            changePage = cpcb;
+            panic = pcb;
         }
     protected:
         DisplayWrapper &display;
         AltimeterSettings &settings;
-        std::function<void(PageType)> changePageCallback;
+        std::function<void(PageType)> changePage;
+        std::function<void(String)> panic;
 };
 
 #endif // ALTIMETER_UI_H

@@ -160,5 +160,5 @@ void MenuOptionPage::update()
 
 void MenuOptionPage::exitMenu()
 {
-    if (changePageCallback) changePageCallback(PageType::PAGE_MAIN);
+    if (changePage) changePage(PageType::PAGE_MAIN);
 }

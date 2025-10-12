@@ -14,6 +14,7 @@
 #endif
 
 #define MAVG_SIZE 10 // 100ms avg
+#define MAX_SKIPPABLE_READS 5 // if more reads are skipped, consider the sensor failed
 
 #define DEFAULT_TEMPERATURE_K 288.15
 #define SEA_LEVEL_PRESSURE_HPA 1013.25
@@ -42,27 +43,43 @@ class AltimeterSettings
         TemperatureUnit temperatureUnit = CELSIUS;
         PressureUnit pressureUnit = HPA;
         UIMode uiMode = STANDARD;
-        void load()
+        bool load()
         {
-            storage.begin(storage_name, true);
-            QFE = storage.getDouble(storage_qfe, SEA_LEVEL_PRESSURE_HPA);
-            QNH = storage.getDouble(storage_qnh, SEA_LEVEL_PRESSURE_HPA);
-            heightUnit = static_cast<HeightUnit>(storage.getUChar(storage_hu, static_cast<uint8_t>(METERS)));
-            temperatureUnit = static_cast<TemperatureUnit>(storage.getUChar(storage_tu, static_cast<uint8_t>(CELSIUS)));
-            pressureUnit = static_cast<PressureUnit>(storage.getUChar(storage_pu, static_cast<uint8_t>(FAHRENHEIT)));
-            uiMode = static_cast<UIMode>(storage.getUChar(storage_ui, static_cast<uint8_t>(COMPACT)));
-            storage.end();
+            bool ret = false;
+            if (storage.begin(storage_name, true))
+            {
+                QFE = storage.getDouble(storage_qfe, SEA_LEVEL_PRESSURE_HPA);
+                QNH = storage.getDouble(storage_qnh, SEA_LEVEL_PRESSURE_HPA);
+                heightUnit = static_cast<HeightUnit>(storage.getUChar(storage_hu, static_cast<uint8_t>(METERS)));
+                temperatureUnit = static_cast<TemperatureUnit>(storage.getUChar(storage_tu, static_cast<uint8_t>(CELSIUS)));
+                pressureUnit = static_cast<PressureUnit>(storage.getUChar(storage_pu, static_cast<uint8_t>(FAHRENHEIT)));
+                uiMode = static_cast<UIMode>(storage.getUChar(storage_ui, static_cast<uint8_t>(COMPACT)));
+                storage.end();
+            }
+            else
+            {
+                ret = false;
+            }
+            return ret;
         }
-        void save()
+        bool save()
         {
-            storage.begin(storage_name, false);
-            storage.putDouble(storage_qfe, QFE);
-            storage.putDouble(storage_qnh, QNH);
-            storage.putUChar(storage_hu, static_cast<uint8_t>(heightUnit));
-            storage.putUChar(storage_tu, static_cast<uint8_t>(temperatureUnit));
-            storage.putUChar(storage_pu, static_cast<uint8_t>(pressureUnit));
-            storage.putUChar(storage_ui, static_cast<uint8_t>(uiMode));
-            storage.end();
+            bool ret = true;
+            if(storage.begin(storage_name, false))
+            {
+                storage.putDouble(storage_qfe, QFE);
+                storage.putDouble(storage_qnh, QNH);
+                storage.putUChar(storage_hu, static_cast<uint8_t>(heightUnit));
+                storage.putUChar(storage_tu, static_cast<uint8_t>(temperatureUnit));
+                storage.putUChar(storage_pu, static_cast<uint8_t>(pressureUnit));
+                storage.putUChar(storage_ui, static_cast<uint8_t>(uiMode));
+                storage.end();
+            }
+            else
+            {
+                ret = false;
+            }
+            return ret;
         }
 };
 
@@ -80,34 +97,44 @@ class AltimeterData
 class Altimeter
 {
     public:
-        void begin() {
+        bool begin() {
+            bool ret = true;
             /* initialize and load from eeprom */
-            settings.load();
-
-            /* initialize moving average buffer */
-            for (uint8_t i = 0; i < MAVG_SIZE; i++)
+            if (settings.load())
             {
-                /* initialize moving average to the default values */
-                mavg_buff_temp[mavg_idx] = data.temperature;
-                mavg_buff_pres[mavg_idx] = data.pressure;
+                /* initialize moving average buffer */
+                for (uint8_t i = 0; i < MAVG_SIZE; i++)
+                {
+                    /* initialize moving average to the default values */
+                    mavg_buff_temp[mavg_idx] = data.temperature;
+                    mavg_buff_pres[mavg_idx] = data.pressure;
+                }
+                /* initialize I2C connection to BAROMETER */
+                if(baro.begin())
+                {
+                #if BAROMETER_TYPE == BT_MS5611
+                    baro.reset(MATH_MODE); //<-- set math mode to 1, otherwise temperature calculation is off by factor 2
+                    baro.setOversampling(OSR_HIGH);
+                #elif BAROMETER_TYPE == BT_MS5611
+                    baro.setTemperatureOversampling(BMP5XX_OVERSAMPLING_2X);
+                    baro.setPressureOversampling(BMP5XX_OVERSAMPLING_16X);
+                    baro.setIIRFilterCoeff(BMP5XX_IIR_FILTER_COEFF_3);
+                    baro.setOutputDataRate(BMP5XX_ODR_100_2_HZ);
+                    baro.setPowerMode(BMP5XX_POWERMODE_NORMAL);
+                    baro.enablePressure(true);
+                    baro.configureInterrupt(BMP5XX_INTERRUPT_LATCHED, BMP5XX_INTERRUPT_ACTIVE_HIGH, BMP5XX_INTERRUPT_PUSH_PULL, BMP5XX_INTERRUPT_DATA_READY, true);
+                #endif
+                }
+                else
+                {
+                    ret = false;
+                }
             }
-            /* initialize I2C connection to BAROMETER */
-            while(!baro.begin())
+            else
             {
-                delay(500);
+                ret = false;
             }
-            #if BAROMETER_TYPE == BT_MS5611
-                baro.reset(MATH_MODE); //<-- set math mode to 1, otherwise temperature calculation is off by factor 2
-                baro.setOversampling(OSR_HIGH);
-            #elif BAROMETER_TYPE == BT_MS5611
-                baro.setTemperatureOversampling(BMP5XX_OVERSAMPLING_2X);
-                baro.setPressureOversampling(BMP5XX_OVERSAMPLING_16X);
-                baro.setIIRFilterCoeff(BMP5XX_IIR_FILTER_COEFF_3);
-                baro.setOutputDataRate(BMP5XX_ODR_100_2_HZ);
-                baro.setPowerMode(BMP5XX_POWERMODE_NORMAL);
-                baro.enablePressure(true);
-                baro.configureInterrupt(BMP5XX_INTERRUPT_LATCHED, BMP5XX_INTERRUPT_ACTIVE_HIGH, BMP5XX_INTERRUPT_PUSH_PULL, BMP5XX_INTERRUPT_DATA_READY, true);
-            #endif
+            return ret;
         }
 
         AltimeterSettings &getSettings() {
@@ -118,22 +145,49 @@ class Altimeter
             return data;
         }
 
-        void read() {
+        bool read() {
+            bool ret = true;
             #if BAROMETER_TYPE == BT_BMP585
-            if(baro.dataReady()) {
-                baro.perofmReading();
-                float temperature = baro.temperature + 273.15; // Convert to Kelvin
-                float pressure = baro.pressure; // in hPa
-                update(temperature, pressure);
+            if(baro.dataReady())
+            {
+                read_skipped = 0;
+                if (!baro.perofmReading())
+                {
+                    ret = false;
+                    temperature = NAN;
+                    pressure = NAN;
+                }
+                else
+                {
+                    // get temperature and pressure from the sensor.
+                    // Temperature is in C, so convert to K before passing it
+                    // to the update function.
+                    update((baro.temperature + 273.15), baro.pressure);
+                }
+            }
+            else
+            {
+                read_skipped++:
+            }
+
+            if (read_skipped > MAX_SKIPPABLE_READS)
+            {
+                ret = false;
             }
             #elif BAROMETER_TYPE == BT_MS5611
-            baro.read();
-           // Read temperature and pressure from the sensor
-            double temperature = baro.getTemperature() + 273.15; // Convert to Kelvin
-            double pressure = baro.getPressure();
-            update(temperature, pressure);
+            if(baro.read() != MS5611_READ_OK)
+            {
+                ret = false;
+            }
+            else
+            {
+                // get temperature and pressure from the sensor.
+                // Temperature is in C, so convert to K before passing it
+                // to the update function.
+                update((baro.getTemperature() + 273.15), baro.getPressure());
+            }
             #endif
-
+            return ret;
         }
     private:
         #if BAROMETER_TYPE == BT_MS5611
@@ -143,6 +197,7 @@ class Altimeter
         #endif
         AltimeterData data;
         AltimeterSettings settings;
+        int read_skipped = 0;
         const double P_filter = 0.1;
         const double T_filter = 0.3;
         #ifdef USE_PRECISE_FORMULA

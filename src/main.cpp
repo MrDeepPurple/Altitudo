@@ -19,7 +19,11 @@ void setup() {
   pageController->ShowSplash();
   uint64_t start = millis();
 
-  altimeter.begin();
+  if (!altimeter.begin())
+  {
+    debug_println("Barometer init failed");
+    pageController->panic("Barometer init failed");
+  }
   
   // wait remaining time for splash screen
   delay(SPLASH_DURATION - (millis() - start));
@@ -34,7 +38,11 @@ void loop() {
   if (millis() - sensorUpdate >= SENSOR_UPDATE_INTERVAL) {
     sensorUpdate = millis();
 
-    altimeter.read();
+    if (!altimeter.read())
+    {
+      debug_println("Barometer read failed");
+      pageController->panic("Barometer read failed");
+    }
   }
 
   // task 2: update screen at defined interval

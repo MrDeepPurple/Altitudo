@@ -92,7 +92,7 @@ void MainPage::redraw()
 
 void MainPage::onClick()
 {
-    if (changePageCallback) changePageCallback(PageType::PAGE_MENU);
+    if (changePage) changePage(PageType::PAGE_MENU);
 }
 
 void MainPage::onScroll(int direction)

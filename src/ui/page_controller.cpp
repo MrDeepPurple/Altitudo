@@ -1,7 +1,7 @@
 #include "ui/page_controller.h"
 
 
-PageController::PageController(DisplayWrapper &disp, AltimeterSettings &sett) : display(disp), settings(sett)
+PageController::PageController(DisplayWrapper &disp, AltimeterSettings &sett) : display(disp), settings(sett), errorPage(disp, sett)
 {
     buttonActionExecuted = false;
 
@@ -15,7 +15,7 @@ PageController::PageController(DisplayWrapper &disp, AltimeterSettings &sett) : 
 void PageController::init()
 {
     for (auto& pair : pages) {
-        pair.second->registerChangePageCallback([this](PageType to) {this->changePage(to);});
+        pair.second->registerCallbacks([this](PageType to) {this->changePage(to);}, [this](String msg) {this->panic(msg);});
     }
 }
 
@@ -54,5 +54,15 @@ void PageController::dataUpdate(AltimeterData &data)
     if (currentPage) {
         currentPage->dataUpdate(data);
         currentPage->update();
+    }
+}
+
+void PageController::panic(String message) {
+    // Show error message and halt
+    errorPage.setMessage(message);
+    errorPage.redraw();
+    while (true) {
+        // halt
+        delay(1000);
     }
 }

@@ -55,7 +55,7 @@
 /* Enable or disable rolling average filtering. Note: Rolling average might not be needed
  * for BMP585, as it has built-in filtering enabled by default. 
  */
-#define USE_ROLLING_AVG
+//#define USE_ROLLING_AVG
 
 /*********************************
  * Other settings
