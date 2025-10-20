@@ -41,7 +41,7 @@
 #define BT_MS5611 0
 #define BT_BMP585 1
 /* select barometer type. */
-#define BAROMETER_TYPE BT_MS5611
+#define BAROMETER_TYPE BT_BMP585
 #if BAROMETER_TYPE == BT_MS5611
 /* some MS5611 use different constants to compute pressure from registers.
 * math mode 0 is the original MS5611 mode, math mode 1 is used by some clones.
@@ -69,7 +69,7 @@
 #define SENSOR_UPDATE_INTERVAL 10
 
 // uncomment to enable debug output on serial
-//#define EN_DEBUG
+#define EN_DEBUG
 #define SERIAL_RATE 115200
 
 #endif

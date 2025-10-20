@@ -4,9 +4,11 @@
 #include <Preferences.h>
 #include <math.h>
 #include "utils/hwconfig.h"
+#include "utils/debug.h"
 #if BAROMETER_TYPE == BT_BMP585
+#include <Wire.h>
 #include <Adafruit_Sensor.h>
-#include "Adafruit_BMP5xx.h"
+#include <Adafruit_BMP5xx.h>
 #elif BAROMETER_TYPE == BT_MS5611
 #include <MS5611.h>
 #else
@@ -45,7 +47,7 @@ class AltimeterSettings
         UIMode uiMode = STANDARD;
         bool load()
         {
-            bool ret = false;
+            bool ret = true;
             if (storage.begin(storage_name, true))
             {
                 QFE = storage.getDouble(storage_qfe, SEA_LEVEL_PRESSURE_HPA);
@@ -58,7 +60,8 @@ class AltimeterSettings
             }
             else
             {
-                ret = false;
+                // if not initialized, save default settings
+                return save();
             }
             return ret;
         }
@@ -102,6 +105,7 @@ class Altimeter
             /* initialize and load from eeprom */
             if (settings.load())
             {
+                debug_pinttext("Altimeter settings loaded");
                 /* initialize moving average buffer */
                 for (uint8_t i = 0; i < MAVG_SIZE; i++)
                 {
@@ -109,13 +113,22 @@ class Altimeter
                     mavg_buff_temp[mavg_idx] = data.temperature;
                     mavg_buff_pres[mavg_idx] = data.pressure;
                 }
+
                 /* initialize I2C connection to BAROMETER */
+                #if BAROMETER_TYPE == BT_MS5611
                 if(baro.begin())
                 {
-                #if BAROMETER_TYPE == BT_MS5611
                     baro.reset(MATH_MODE); //<-- set math mode to 1, otherwise temperature calculation is off by factor 2
                     baro.setOversampling(OSR_HIGH);
-                #elif BAROMETER_TYPE == BT_MS5611
+                }
+                else
+                {
+                    ret = false;
+                }
+                #elif BAROMETER_TYPE == BT_BMP585
+                debug_pinttext("Initializing BMP585...");
+                if(baro.begin(BMP5XX_DEFAULT_ADDRESS, &Wire))
+                {
                     baro.setTemperatureOversampling(BMP5XX_OVERSAMPLING_2X);
                     baro.setPressureOversampling(BMP5XX_OVERSAMPLING_16X);
                     baro.setIIRFilterCoeff(BMP5XX_IIR_FILTER_COEFF_3);
@@ -123,12 +136,13 @@ class Altimeter
                     baro.setPowerMode(BMP5XX_POWERMODE_NORMAL);
                     baro.enablePressure(true);
                     baro.configureInterrupt(BMP5XX_INTERRUPT_LATCHED, BMP5XX_INTERRUPT_ACTIVE_HIGH, BMP5XX_INTERRUPT_PUSH_PULL, BMP5XX_INTERRUPT_DATA_READY, true);
-                #endif
                 }
                 else
                 {
+                    debug_pinttext("baro begin returned false");
                     ret = false;
                 }
+                #endif
             }
             else
             {
@@ -151,11 +165,9 @@ class Altimeter
             if(baro.dataReady())
             {
                 read_skipped = 0;
-                if (!baro.perofmReading())
+                if (!baro.performReading())
                 {
                     ret = false;
-                    temperature = NAN;
-                    pressure = NAN;
                 }
                 else
                 {
@@ -167,7 +179,7 @@ class Altimeter
             }
             else
             {
-                read_skipped++:
+                read_skipped++;
             }
 
             if (read_skipped > MAX_SKIPPABLE_READS)
@@ -193,7 +205,7 @@ class Altimeter
         #if BAROMETER_TYPE == BT_MS5611
         MS5611 baro;
         #elif BAROMETER_TYPE == BT_BMP585
-        Adafruit_BMP585 baro;
+        Adafruit_BMP5xx baro;
         #endif
         AltimeterData data;
         AltimeterSettings settings;
